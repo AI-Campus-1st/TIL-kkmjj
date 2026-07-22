@@ -1,0 +1,35 @@
+터미널(CLI) - os 환경 변수 (Path - 경로)
+-> 터미널에서 사용할 프로그램이 있는 폴더 경로를 미리 등록해놓는 것
+
+환경 변수 - Path (경로에 대한 변수)
+Os 변수
+X = 5
+Name = ‘Jason’
+
+Os 환경 변수
+
+개발 환경
+Python을 사용하기 위해 anaconda 설치
+가상환경(특성 파이썬 버전을 등록한 환경) - virtual environment
+
+Conda create -n 가상환경이름 python=버전
+-> 특정 버전을 설정하고 가상환경을 만든다
+
+conda env list -> 가상환경 목록 확인하는 명령어 
+CTRL + ENTER - 실행
+COMMAND +S - 저장
+Shift + enter - 연속적으로 실행하고 싶을 때
+흰색동그라미 -> 변경사항 저장x
+COMMAND + / 주석 풀기, 주석 설정하기
+
+GUI - cell 생성, 삭제
+
+단축키
+ESC - 명령모드 
+a 위에 (파이썬)셀 생성
+b 아래에 (파이썬)셀 생성
+dd - 셀 삭제
+m - 마크다운 (더블클릭 후 수정)
+m 마크다운
+y  파이썬
+
