@@ -1,0 +1,16 @@
+예약어 역할
+
+Boolean - False,True
+None
+논리연산자 - and,or, not / 비교 연산자is
+포함 테스트 - in
+del - 변수 삭제(메모리에서 해당 변수 삭제)
+-> ex) 	print='hi'
+ 
+def - 함수 정의/ return 
+class - 클래스 정의
+조건문 - if, elif, else / match-case<3.10버전부터 사용가능>(구조적 패턴 매칭)
+반복문 - for, while / break, countinue, pass
+모듈 - import, from, as
+에러처리 - try-except, finally / raise
+
