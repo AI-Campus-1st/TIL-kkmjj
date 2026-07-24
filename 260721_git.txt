@@ -25,4 +25,4 @@ Git commit -m "기록 메시지" -> git log
 Git push origin master (main)
 
 또 올리기
--> 반복
+-> 반복. 
