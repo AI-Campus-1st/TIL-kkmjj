@@ -1,0 +1,98 @@
+자료형_변수
+
+변수 
+- 데이터, 값을 담는 상자
+할당 연산자 = 
+- 변수는 = 을 통해 할당됨
+동적 타이핑
+- 파이썬은 실행할 때 자료형을 검사
+Ex) type()
+메모리 주소 확인
+Ex) id()
+식별자
+- 변수, 함수, 모듈, 클래스 등을 식별하는데 사용되는 이름
+Ex) False, None, True, and, as, assert, async, await, break, class, continue, def, del, elif, else, except, finally, for, from, global, if, import, in, is, lambda, nonlocal, not, or, pass, raise, return, try, while, with, yield
+*내장함수나 모듈 등의 이름으로도 만들면 안됨.
+
+None 타입
+- 값을 없음을 표현하기 위해 존재
+
+형변환
+- 데이터 타입은 서로 변환가능
+* 암시적 형변환
+- 자동으로 형변환하는 경우
+-> bool, Numbers(int, float, complex
+* 명시적 형변환
+- String -> inter : 형식에 맞는 숫자만 가능 
+- Intger -> string : 모두 가능
+
+암시적 형변환도 명시적 형변환 가능
+* Int() : string, float -> int
+* float() :string, int -> float
+* str() : int, float, list, tuple, dic
+
+숫자 타입
+(1) int (정수)
+모든 정수는 int로 표현
+8진수: 0o / 2진수 0b / 16진수 0x
+
+(2) float (부동소수점 , 실수)
+항상 같은 값으로 일치되지 않음
+Ex) 3.5 - 3.12 => 0.379999~ 로 나옴
+	3.5-3.12 == 0.38 => false
+
+(3) complex(복소수)
+각각 실수로 표현되는 실수부와 허수부를 가짐
+복소수는 허수부를 j로 표현
+
+참/거짓 (boolean) 타입
+True/ False로 이루어짐
+False로 변환 => 0, 0.0, (), [], {}, ‘’, None
+
+비교연산자
+< 미만
+<= 이하
+> 초과
+>= 이상
+== 같음
+!= 같지않음
+Is 객체 
+Is not 부정된 객체 
+
+논리연산자
+A and b -> a와b 모두 True일 때만 True
+A or b -> a와 b 모두 False일 때만 False
+Not a -> True => False / False => True
+
+*and -> a가 거짓이면 a를 리턴/ 참이면 b를 리턴
+Ex) 3 and 5 -> 5(b의 값인 5를 리턴)
+*or -> a가 참이면 a를 리턴 / 거짓이면 b를 리턴
+Ex) 0 and 3 -> 3(0은 False로 취급하기 때문)
+
+군집형
+
+문자열 타입
+‘’ | “” 사용
+‘’ ->’ 오“징어 “ 오’
+“ -> “ 오 ‘징어’ 오”
+“”” “”” -> 여러줄 출력
+
+문자열 안에 (‘, “)가 사용될 경우 \ 활용 가능
+Ex) print(‘철수가 말했다. \’안녕\’’
+
+문자열 안에 연산자 사용 가능
+Ex) print(‘hey’ *3+’ yo!’)
+	=> heyheyhey yo!
+
+이스케이프 시퀀스 
+- 문자열을 활용하는 경우 특수문자 혹은 조작을 하기 위하여 사용 (\구분)
+\n ->
+\t
+\r
+\0
+\\
+\’
+\”
+
+
+
