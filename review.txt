@@ -83,16 +83,52 @@ Ex) print(‘철수가 말했다. \’안녕\’’
 문자열 안에 연산자 사용 가능
 Ex) print(‘hey’ *3+’ yo!’)
 	=> heyheyhey yo!
-
 이스케이프 시퀀스 
 - 문자열을 활용하는 경우 특수문자 혹은 조작을 하기 위하여 사용 (\구분)
-\n ->
-\t
-\r
-\0
-\\
-\’
-\”
+\n -> 줄 바꿈
+\t -> 탭
+\r -> 캐리지리천
+\0 -> 널(Null)
+\\ -> \
+\’ -> 단일인용부호(‘)
+\” -> 이중인용부호(“)
 
+Print end 옵션
+Ex)
+print(‘진짜로’, end=‘!’)
+print(‘프린트 기본이 \\n’, end=‘!’)
+-> 진짜로!알고보면 print는 기본이 \n!
+
+String %-formatting
+- %d : 정수
+Ex) print(‘내 이름은 %s’ %name)
+	-> 내 이름은 chairman
+- %f : 실수
+Ex) print(‘정수는 %d’ %score)
+	-> 정수는 3
+- %s : 문자열
+print(‘실수는 %f’ %score)
+	-> 실수는 3.810
+
+Str.format()
+Ex)
+'내 이름은 {} 점수는 {}'.format(name, score)
+->'내 이름은 minji 점수는 3.81'
+
+F-string
+Ex) f'내 이름은 {name} 점수는 {score}'
+-> '내 이름은 minji 점수는 3.81'
+
+==> 형식을 지정할 수 있음
+Ex) print(f'오늘은 {today:%Y}년 {today:%m}월 {today:%d}일 {today:%A}')
+	-> 오늘은 2026년 07월 23일 Thursday
+
+==> 연산과 출력형식 지정도 가능
+Ex) pi = 3.141592
+      print(f'원주율은 {pi:.2f}')
+	-> 원주율은 3.14
+
+문자열(string)
+변경할 수 없고, 순서가 있고, 순회가 가능
 
 
