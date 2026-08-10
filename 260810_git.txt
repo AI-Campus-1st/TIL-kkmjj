@@ -1,0 +1,25 @@
+SELECT
+
+WHERE
+- 데이터 필터링(조건을 붙여서 가지고올 수 있음 
+= <> != 같다, 다르다
+ < > <= >= 크기 비교, 날짜에도 씀
+AND OR NOT 여러 조건을 엮음
+IS NULL 빈 값은 =로 비교X
+
+LIKE
+- 패턴 탐색(%는 글자수 제한 없음, - 는 정확한 한글자)
+DATETIME
+- 월별 조회를 효율적으로 하는 방법
+IN
+- 포함 여부 확인
+BETWEEN
+- 범위(AND, 비교 연산자 대신 범위를 줌)
+CASE 문
+
+ELSE result -> 널 대신해서 쓰는 값
+EXISTS– 존재여부확인
+- 있으면 t 없으면 f
+
+select * from tb_customer limit 2;
+
