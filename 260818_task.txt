@@ -1,0 +1,223 @@
+크롤링
+
+클라이언트와 서버
+- 크롤러 : 브라우저 자리에 대신 앉는 프로그램
+
+# 브라우저가 하는 는일
+요청 -> 응답 -> 렌더링 -> 화면
+# 크롤러가 하는 일
+요청 -> 응답 -> 파싱 -> 데이터
+- 필요한 값만 꺼냄
+
+HTTP
+- 브라우저와 서버가 대화할 때 지키기로 한 형식
+- HyperText Transfer Protocol = 문서를 주고 받기 위한 전송 규약
+- 요청과 응답은 정해진 순서와 형식을 따름. 프로그램이 읽을 수 있음
+- “요청라인 | 헤더 | 바디 “ 세 부분으로 이루어짐
+
+요청의 구조
+- 요청라인
+> 매서드(get/post)와 경로가 들어감
+- 헤더
+> 요청에 대한 부가 정보, user-agent(어떤 프로그램인지), accept( 어떤 형식 원하는지)
+- 바디 
+> 서버에 보낼 내용, get은 보통 비어있고, post에서 본격적으로 쓰임
+
+응답의 구조
+- 상태줄
+> 요청이 어떻게 처리 됐는지 숫자로 알려줌. 크롤러가 가장 먼저 확인 해야할 값
+- 헤더
+> 응답 본문의 형식(content-type), 인코딩, 쿠키, 본문을 해석하는데 필요한 정보
+- 바디
+> 실제 내용, html문서, json 데이터나 이미지 -> 파싱할 대상
+
+GET-IRL
+https://finance.naver.com/sise/sise_quant.nhn?sosok=1
+
+* 1개일 때
+sosok=1 (? 뒤의 변수 == 값)
+-> 쿼리 파라미터
+* 여러개일 때
+?page=4&sort=new (&로)
+
+Request URL 
+-> 서버 경로 
+
+POST-Body
+- 주소에 드러나지 않는 자리에 값을 담아 보냄
+* 주소에 값 남지 X 길이 제한 X
+* 로그인, 검색조건, 전송/데이터 생성에 주로 쓰임
+* 주소만으로 제현 X 크롤링 난이도 ^
+
+GET POST
+
+
+상태코드
+
+
+정적 웹 - 완성해서 보냄
+- 응답으로 받은 HTML 안에 원하는 값이 이미 들어 있음
+- Requests로 받은 문자열 그대로 파싱
+
+크롤링 F12
+1. Elements
+- HTML 구조를 트리로 보여줌 (선택 자리 찾는 곳)
+2. Network
+- 페이지가 요청한 모든 파일 ( 숨은 API 찾는 곳)
+3. Console
+- 자바스크립트 디버깅(선택지 즉석애서 실험 가능)
+4. Application
+- 쿠키, 세선, 스토리지 (로그인 상태 다룸)
+
+Requests
+- 파이썬으로 브라우저와 똑같은 요청을 보냄
+ex)
+import requests
+URL = "https://finance.naver.com/ sise/sise_quant.nhn "
+response = requests.get(URL)
+print(response.status_code) # 200
+print(response.text) # HTML 문자열
+
+헤더를 붙임
+- 서버는 상대가 브라우저인지 프러그램인지 헤더로 판단
+EX)
+headers = {
+"User- Agent": "Mozilla/5.0 ...",
+"Content- Type": "application/json; charset=utf - 8"}
+response = requests.get(URL, headers=header
+
+• User- Agent가없으면곧바로차단하는 사이트가 많음
+• 403 -> 헤더 의심
+• 필요한 헤더는Network 탭의Request Headers에서그대로복사
+
+Params | timeout | 인코딩
+EX)
+params = {" sosok": 0}
+response = requests.get(URL, params=params, timeout=10)
+response.text 					# str — 인코딩을 추정해디코딩
+response.content 					# bytes — 원본그대로
+response.encoding = "utf - 8" 		# 한글이깨질때
+
+- Params 사용 -> 주소를 문자열로 붙이지 X ㄱㄴ
+- Timeout X -> 응답 없는 서버에서 영원히 멈춤
+- 한글 깨짐 -> encoding 직접 지정
+
+태그
+
+
+속성 - 데이터사 숨겨진 곳
+EX)
+<a href="/detail?id=57698" class="title" id="item - 1"
+data- category="창업 " onclick="goView('57698');">
+고덕비즈밸리 입주기업 모집
+</a>
+
+- Id: 문서에서 유일한 이름
+- Class : 여러 요소가 공유하는 분류
+- Href. Src : 이동하거나 불러올 주소
+- Data-* : 개발자가 심어둔 임의의 값
+- O’clock : 자바스크립트 함수 호출
+
+DOM 트리
+- 부모와 자식으로 이어진 나무
+1. Html : 문서 전체
+2. Body : 화면에 보이는 영역
+3. Div.list : 목록을 감싸는 상자
+4. Li : 반복되는 한 항목
+5. A : 원히는 값
+
+선택자는 주소다
+- 문서 안에서 특정 요소를 가리키는 표기법
+* css가 어딜 꾸밀지 지정하려고 만든 문법
+* 크롤링은 어디를 가져올지 지정
+* 좋은 선택자를 짧고, 구조가 조금 바뀌어도 살아남음
+EX)
+# 너무취약한선택자
+body > div:nth - child(3) > div > ul > li
+# 견디는선택자
+.store- list li
+
+태크 | ID | class
+
+
+* id는 하나, class는 여럿 
+> 이 차이가 select_one과 select 선택으로 이어짐 
+
+속성 선택자 5 가지
+
+
+후손과 자식
+- 공백 하나가 의미를 크게 바꿈 
+Ex)
+<div class="list">
+ <ul>
+    <li><a>항목 </a></li>
+ </ul>
+</div>
+.list a # 후손 — 아무리 깊어도 찾음 → 찾음
+.list > a # 자식— 바로 아래만 봄 → 못찾음
+
+* 후속 선택지
+- 넉넉해서 구조 변경에 잘 견딤
+* 자식 선택지
+- 정확한 대신 한 겹만 끼어들어도 깨짐
+= > 평소에는 후손 , 정확히 골라내야 할 때만 자식 
+
+
+HTML 객체
+
+EX)
+import requests
+from bs4 import BeautifulSoup
+response = requests . get(URL)
+soup = BeautifulSoup(response.text, "html.parser")
+
+- response.text : 긴 문자열
+- BeautifulSoup : 탐색 가능한 트리
+- Html.parser : 기본 내장 / lxml은 더 빠름
+
+Find | find_all
+- 이름과 속성으로 태그를 찾음
+EX)
+Soup.find(“title”) 		# 가장 위에 있는거 하나 
+Soup.find(“li”, class="type1”) # class로 좁히기
+Soup.find(id=“content area”) # id로 찾기
+Soup.find(“a”, attrs={"class”:”thumb”})
+Soup.find.all(“li”) 
+
+- class는 파이썬 예약어라 class_ 로 돌려씀
+- Find 하나 | find_all은 리스트로 돌려줌
+- 못찾으면 None - 바로 .text를 부르면 오류가 남
+
+Select | select_one
+- Css 선택지를 그대로 쓸 수 있음
+EX)
+soup.select(" a.tltle") # 리스트
+soup.select_one("# contentarea ") # 하나
+result = soup . select(" a.tltle")
+print(result[0].text) # select 는여러개를가져옵니다
+soup.select('a[ href^="/item/ main.naver?code "]')
+- 개발자 도구에서 복사한 선택지 그대로 넣을 수 있음
+=> find, select 섞을 수 있음 
+
+값을 꺼냄
+- 태그를 찾았으면 내용과 속성을 가지고 옴
+EX)
+result = soup.find("a")
+result.text 		# 태그안의글자
+result.attrs["href"] # 속성값
+
+# 좁혀들어가기— 찾은객체에서 다시찾습니다
+box = soup.find(id=" contentarea")
+table = box.find ("table", class_="type_2")
+
+- text는 하위 태그의 글자까지 다 합쳐서 돌려줌
+- .attrs 딕셔너리 -> 없는 키 부르면 오류
+
+정적 크롤링 다섯 단계
+1. 관찰 : f12로 구조 확인
+2. 요청 : requests.get()
+3. 확인 : status_code 점검
+4. 파싱 : select/find
+5. 추출 : .text / .attrs
+
