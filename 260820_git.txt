@@ -1,0 +1,163 @@
+동적웹
+
+데이터 API 서버에 요청을 보내야 한다
+
+Elements -> 잘 사용 X
+
+페이지 전환x -> 
+
+JSON -> 문자열
+
+비동기 렌더링 4단계
+1. HTML 수신 
+2. JS 실행
+3. 데이터 요청
+4. 화면 완성
+
+브라우저와 requests
+	브라우저	requests
+HTML 받기	한다	한다
+자바스크립트 실행	한다	하지 않는다
+추가 데이터 요청	자동으로 일어난다	일어나지 않는다
+우리가 보는 것	완성된 화면	최초의 뼈대
+세번 확인 해야힘 
+1. 페이지 소스
+- ctrl+U 서버가 준 원본값에 있는지 확인
+- 개발자도구가 아닌 페이지 소스 보기
+- ctrl+F로 화면에서 본 값 검색 -> 찾음 == 정적 | 못찾음 == 다음단계
+
+2. Response.text
+- 파이썬이 받은 문자열에 값이 있는지 확인 (실제 받은거 확인)
+EX)
+Response = requests,get(URL)
+print(“스파이더맨” in response.text)
+-> True -> 정적 | False-> 값 없음
+3. Elements
+- 브라우저가 완성한 화면에 있는지 확인
+- 자바스크립트까지 실행된 결과를 보여줌
+- Elements : 값이 O  | 페이지 소스 : 없음 -> 동적
+
+결과 대응
+- 항상 3번 확인 필수
+소스	Elements	판정	대응
+있음	있음	정적	requests + BeautifulSoup
+없음	있음	동적 - 내부 API	Network에서 요청을 찾아 requests로 재현
+없음	없음	로그인 권한 필요	세션 처리
+없음	있음 . 요청 못 찾음	토큰•암호화	Selenium 검토
+
+
+Network 구조
+1. Name 
+- 요청한 파일 이름. 데이터 요청은 확장자가 없거나 jsond인 경우 많음 
+2. Status
+- 응답코드 200이 아닌 요청은 후보에서 제외
+3. Type
+- 요청의 종류 (fetch / xhr) -> 찾는 것 
+4. 응답 크기
+- 데이터를 담은 요청은 대게 큼
+
+Fetch/XHR 필터
+- 가장 먼저 눌러야 함
+* 자바스크립트가 보낸 데이터 요청만 남김
+
+Preserve log
+- 페이지가 넘어가도 기록을 남김
+* 체크하지 않으면 페이지 이동 순간 목록 초기화
+* Clear 후 시작하면 깔끔
+
+# 관찰 순서
+1. Network 탭열기
+2. Preserve log 체크
+3. Clear 로비우기
+4. 화면에서 동작수행
+5. 새로 생긴 요청만 확인
+
+Hearders 읽기
+- 요청을 재현하는데 필요한 정보 
+
+General	Request URL • Method	어디로 어떤 방식으로 보냈는가. 재현의 출발점입니다.
+General	Status Code	200이어야 데이터가 담긴 요청입니다.
+Request Headers	User-Agent • Referer	서버가 요구하는 신원 정보. 빠뜨리면 403이 돌아옵니다.
+Payload	Query String • Form Data	무엇을 조건으로 보냈는가. 페이지•검색어가 여기 있습니다.
+
+Payload
+- 조건이 어디 실려있는지 확인
+
+Preview로 데이터 찾기
+- 응답을 접었다 펴며 구조 파악
+* JSON을 트리로 보여줌 
+
+값으로 역 추적 - 가장 확실함
+
+Request URL 해부
+https://cine21.com/movie/rank/list_items/?p=1&idx=2
+—————————   ———————————-  ——————
+호스트			경로					조건 
+
+Copy as cURL
+- 헤더와 쿠키까지 통째로 복사
+
+cURL을 requests
+-H는 headers, —data 는 data로 옮김
+*  H 하나가headers 딕셔너리의 항목하나입니다.
+
+Json - 데이터 표준 형식
+* 중괄호는 딕셔너리, 대괄호는 리스트
+* 키는 -> “ “ |  ‘ ‘ -> json X
+* true/false/null 이파이썬에서는 True/False/Non 
+
+JSON과 파이썬
+- 옮겨 담을 때 이름만 바뀜
+ 
+JSON	파이썬	예시
+object	dict	{"id": 1}
+array	list	[7, 2, 3]
+string	str	"orange"
+number	int• float	12345
+true / false / null	True / False / None	-
+
+Response.json()
+- 한 줄이면 딕셔너리
+EX)
+Data = response.json() # 권장
+# 같은 일 
+Import json
+Data = json.loads(response.text)
+
+->  응답이 json이 아니면 예외
+* response.json() 인코딩까지 알아서 처리
+* JSON이 아닌 응답에 부르면 JSONDecodeError
+* 실패 ->  response.text[:200] 확인
+
+중첩 구조 접근
+- 한겹씩 내려감
+EX)
+data = response.json()
+items = data["items"]
+for item in items:
+print(item[" hname"], item[" aud"])
+# 키가 없을 수 있음 -> .get() 써야함
+print(item.get("hname", ""))
+
+-> 리스트가 나오면 반복문, 딕셔너리가 나오면 키 접근
+
+리스트 안의 딕셔너리
+- 크롤링 결과 가장 흔한 모양
+EX)
+result = []
+for item in items:
+	result.append({
+		"제목 ": item.get("hname", ""),
+		"관객수 ": item.get("aud", ""),
+	})
+
+import pandas as pd
+pd.DataFrame(result).to_csv("out.csv", index=False,
+				encoding="utf - 8- sig")
+
+-> DataFrame, CSV, DB 바로 감
+* 키 이름은 수집 시점에서 한글로 통일
+
+
+
+
