@@ -1,0 +1,238 @@
+Selenium
+- 보통 동적웹 크롤링 사용
+
+1. 토큰이 동적으로 생성된다.
+2. 여러 단계를 거쳐야 한다
+3. 랜더링 결과 자체가 필요하다
+===> 3가지 조건이 해당하면 selenium 사용
+
+Driver.get()
+- 브라우저를 원하는 주소로 보낸다.
+EX)
+driver.get("https://books.toscrape.com/") # 저 URL 사이트로 들어가짐 
+driver.current_url 			# 지금주소
+driver.title 				# 문서제목
+driver.page_source 		# 현재화면의HTML
+driver.back() 				# 뒤로
+driver.refresh() 			# 새로고침
+* get() -> 페이지 로딩이 끝날 때까지 기다렸다가 돌아옴
+
+find_element | find_elements
+- 하나 찾음 | 전부 찾음
+EX)
+el = driver.find_element(By.CLASS_NAME, "thumb_list") 	# 하나
+# 못 찾았을 때 -> NoSuchElementExcepti 오류 발생
+els = driver.find_elements(By.TAG_NAME, "li") 			# 리스트
+# 못 찾았을 때 -> 빈 리스트
+* find_elements는 없어도 예외를 던지지 않음 -> 존재 확인
+* 찾은 요소에서 find_element 부르면 그 안에서 찾음
+* 반복문에서 항목별로 값을 뽑을 때 재탐색
+
+By
+- 무엇으로 찾을 것인가.
+By	기준	예시
+ID	id 속성	By.ID, "content"
+CLASS_NAME	class 하나	By.CLASS_NAME, "thumb"
+CSS_SELECTOR	CSS 선택자 전체	By.CSS_SELECTOR, "a.title"
+XPATH	XPath 식	By.XPATH, “//a[@class='title']"
+TAG_NAME	태그	By.TAG_NAME, “li”
+LINK_TEXT	링크 글자 전체	By.LINK_TEXT, “더보기”
+PARTIAL_LINK_TEXT	링크 글자 일부	By.PARTIAL LINK TEXT “더보”
+
+클릭
+- 사람이 누르는 것과 같은 효과를 냄
+EX)
+button = driver.find_element(By.CSS_SELECTOR, ".btn - more")
+button.click()
+
+# 화면밖에있으면클릭이실패할수있습니다
+driver.execute_script("arguments[0].scrollIntoView();", button)
+button.click()
+
+# 그래도막히면자바스크립트로 직접
+driver.execute_script("arguments[0].click();", butto -> 최후 수단
+* 보이지 않는 요소는 클릭할 수 X -> 스크롤이 먼저
+* 팝업이 있으면 -> ElementClickIntercepted 오류 발생
+
+키보드 입력
+- 검색창을 채우고 엔터를 침
+EX)
+box = driver.find_element(By.NAME, "query")
+box.clear()
+box.send_keys("python")
+box.send_keys(Keys.RETURN)
+* clear() 없이 입력하면 기존 값 뒤에 덧붙음
+* Keys.END -> 페이지를 맨 아래로 내리는 간단한 방법
+
+CSS 로 안되는 경우 => XPath 필요
+- 글자 내용으로 요소를 찾아야 할 때
+- 부모나 앞쪽 형제로 거슬러 올라가야 할 때
+- Class 이름이 매번 바뀌어 다른 단서를 써야 할 때
+EX)
+# CSS -> 불가능
+"더보기" 라는 글자를 가진 버튼
+
+# XPath 로는가능
+//button[text()=" 더보기 "]
+
+절대경로와 상대경로
+- 거의 언제나 상대경로를 씀
+EX)
+# 절대경로— 뿌리부터 한칸씩
+/html/body/div[3]/div/ul/li[1]/a
+# 상대경로— 문서어디서든
+//a[@class="title"]
+# // 는"몇단계아래든상관없이 
+* 절대경로 태그 하나만  끼어들어도 깨짐
+* 개발자도구 copy full Path -> 사용X
+
+속성으로 조건 걸기
+- 대괄호 안에 조건을 적음
+EX)
+//a[@class="title"] # class 가정확히title
+//input[@type="text"] # type 이text
+//div[@id="content"]//a # content 안의모든a
+# 조건여러개
+//a[@class="title" and @target="_blank"]
+# n 번째
+(//a[@class="title”])[1]
+* @ 속성을 뜻함
+* class가 여러 대면 정확히 일치하지 않아 실패 -> contains
+* 순서 지정 -> 괄호로 전체를 묶은 뒤 대괄호 붙임
+
+contains() | text()
+
+EX)
+# class가 여러 개일 때
+//div[contains(@class, "item")]
+# 글자 내용으로 찾기
+//button[text()=" 더보기 "]
+//span[contains(text(), " 영업중 ")]
+# 속성값 일부로 찾기
+//a[contains(@href, "/detail")]
+//a[starts - with(@href, "/list")]
+* contains(@class) -> 동적 class명 대응의 표준 해법
+* text()는 그 요소의 직접 텍스트만 봄
+* 하위 태그까지 포함 => . 사용 | contains(.,”영업중”)
+
+축 - 위아래 옆으로
+- CSS에는 없는, 거슬러 올라가는 능력
+EX)
+# 부모
+//span[text()=" 가격 "]/parent::div
+# 바로다음형제
+//dt[text()=" 주소 "]/following - sibling::dd[1]
+# 조상중특정태그
+//a[@class="title"]/ancestor::li
+* “라벨 옆의 값”을 뽑는 구조에서 결정적으로 유용
+* 주소/전화번호처럼 dt/dd로 짝지어진 데이터에 자주씀
+
+CSS / XPath
+하는 일	CSS	XPath
+id로 찾기	#content	//*[@id="content"]
+class로 찾기	•title	//*[@class="title"]
+자식	div > a	//div/a
+후손	div a	//div//a
+글자 내용	불가능	I/a[text()="더보기"]
+부모로	불가능	|/a/parent::div
+
+암묵적 대기
+- 드라이버 전체에 한 번만 걸어둠
+EX)
+Driver.implicitly_wait(5)
+-> 모든 find_element가 요소를 찾을 때까지 최대 5초 재시도
+-> 찾으면 즉시 진행(항상 5초 기다리는거 X)
+
+명시적 대기
+- 무엇을 기다릴지 정확히 지정
+EX)
+wait = WebDriverWait(driver, 10)
+el = wait.until(
+	EC.presence_of_element_located((By.ID, "list"))
+)
+btn = wait.until(
+	EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn - more"))
+)
+* 조건을 만족하면 즉시 진행 -> 낭비 X
+* 존개와 클릭 가능을 구분해 기다릴 수 있음
+
+자주 쓰이는 조건
+조건	언제 만족되는가
+presence_of_element_located	요소가 DOM에 생겼을 때
+visibility_of_element_located	요소가 화면에 보일 때
+element_to_be_clickable	보이면서 클릭 가능할 때
+text_to_be_present_in_element	특정 글자가 들어왔을 때
+invisibility_of_element_located	로딩 스피너가 사라졌을 때
+
+Sleep 
+- 가장 쉽고, 가장 나중에 문제
+BUT
+- 요청 사이 간격을 두는 매너용 
+
+Headless
+- 창을 띄우지 않고, 필요 없는 것은 금
+* 창 크기 반드시 지정
+
+스크롤과 무한 스크롤
+- 높이를 비교해 끝을 판정
+
+Iframe | alert | 새 탭
+iframe	다른 문서 안에 있다	switch_to.frame(el) 로 들어가고, switch_to.default_content() 로 나옵니다.
+alert	브라우저 팝업	Switch_to.alert.accept() 로 확인, dismiss() 로 취소합니다. 처리 전에는 아무 조작도 안 됩니다.
+새 탭	창이 여러 개	driver.window_handles 로 목록을 얻고 switch_to.window() 로 옮깁니다.
+shadow DOM	캡슐화된 영역	el.shadow_root 로 진입합니다. 일반 선택자로는 보이지 않습니다.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
