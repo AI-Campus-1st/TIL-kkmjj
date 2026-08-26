@@ -1,0 +1,212 @@
+대량수집_엔지니어링
+
+
+I/O bound와 CPU bound
+- 무엇이 병목인지에 따라 다름
+	I/0 bound	CPU bound
+병목	네트워크•디스크 응답 대기	계산 그 자체
+예	크롤링, API 호출, 파일 읽기	이미지 처리, 대량 파싱, 압축
+맞는 도구	스레드 . asyncio	프로세스
+GIL 영향	거의 없음	있음 - 스레드로는 안 빨라짐
+
+(1) 멀티스레딩
+
+Pool | map
+- 함수 하나와 인자 목록만 있으면 됨
+* Pool.map(f, args) -> 함수를 인자 목록에 하나씩 적용
+* 결과는 인자 순서 그대로 리스트로 돌아옴
+* with문을 쓰면 풀이 자동으로 정리
+
+multiprocessing.dummy
+- 스레드 
+* multiprocessing.dummy 는 프로세스 API를 그대로 흉내낸 스레드 구현
+EX)
+# 스레드
+from multiprocessing.dummy import Pool
+# 프로세스
+from multiprocessing import Pool
+# 아래 코드는 한 글자도 바뀌지 X
+with Pool(4) as pool:
+results = pool.map(work, items)
+
+Map 계열 4가지
+메서드	인자	결과	쓰는 때
+map	인자 하나	순서대로 리스트	기본값
+starmap	인자 여러 개(튜플)	순서대로 리스트	함수가 인자를 둘 이상 받을 때
+imap	인자 하나	순서대로 이터레이터	결과가 크거나 진행률을 보고 싶을 때
+imap_unordered	인자 하나	끝난 순서대로	순서가 상관없고 가장 빠를 때
+인자가 여러개 일 때 
+- starmap가 튜플을 풀어서 넘겨줌
+EX)
+def fetch(url, page):
+	return session.get(url, params=("page": page})
+
+args = [(URL, p) for p in range (1, 11)]
+
+with Pool (3) as pool:
+results = pool.starmap(fetch, args)
+
+# map으로 하려면 인자를 하나로 묶어야 함
+# pool.map(lambda a: fetch(*a), args) 〈 프로세스에서는 불가
+
+예외
+- 하나가 실패하면 map 전체가 예외
+* map은 예외를 그대로 올려보내므로 전체가 중단
+* 안정성 원칙대로 -> 작업 함수 안에서 기록하고 넘어가야함
+
+(2) 멀티프로세싱
+
+Pool.map
+- import만 바꾸면 프로세스 
+EX)
+from multiprocessing import Pool
+def heavy_parse(html):
+	soup = BeautifulSoup(html, "lxml")
+	return extract(soup)
+
+if __name__ == "__main__": # 반드시필요 -> 없으면 프로세스 무한 생성 
+	with Pool(4) as pool:
+		rows = pool.map(heavy_parse, html_list)
+
+
+스레드와 프로세스
+	스레드	프로세스
+메모리	공유한다	따로 쓴다
+데이터 전달	그냥 참조	직렬화해서 복사
+생성 비용	작다	크다
+GIL	걸린다 (V0 중엔 해제)	각자 자기 GIL
+적합	네트워크 대기	계산
+
+직렬화 제한
+- 프로세스로 넘길 수 있는 것에는 조건이 있음
+EX)
+# 안 되는 것
+pool.map(lambdax: x*2, items) # lambda
+pool.map(session.get, urls) # 세션 객체
+# 되는 것- 모듈 최상위에 정의된 함수
+def double(x):
+	return x * 2
+
+pool.map(double, items)
+# 프로세스마다 세션을 새로 만들어야 합니다
+* pickle로 직렬화 할 수 있는 것만 
+
+프로세스가 필요할 때
+1. 대량 파싱
+2. 이미지 문서 처리
+3. 수집 
+
+(2) 비동기
+- 스레드를 늘리는 대신, 기다리는 동안 다른 일을 함 
+* 스레드는 OS가 번갈아 실행 시켜줌
+* 비동기는 하나의 스레드 안에서 기다림이 생길 때마다 다음 작업으로 넘어감
+* Async / await 문법으로 코드 다시 써야함
+
+Https - requests
+- 동기 코드는 requests와 거의 같음
+* 같은 라이브러리가 비동기도 지원
+
+AsyncClient / gather
+- 비동기 수집 기본
+* await가 붙은 지점에서 다른 작업으로 넘어감
+* return_exceptions=True -> 하나가 실패해도 전체가 멈추지 않음
+* 결과가 예외 객체에 섞여 오므로 뒤에서 걸러내야함
+
+동시 수 제한
+- 비동기는 제한을 걸지 않으면 위험함
+EX)
+async def fetch(client, url, sem):
+	async with sem: # 동시에3개까지만
+		r = await client.get(url)
+		await asyncio.sleep(0.7) # 매너지연
+		return r.text
+async def main(urls):
+	limits = httpx.Limits(max_connections=3)
+	sem = asyncio.Semaphore(3)
+	async with httpx.AsyncClient(limits=limits, timeout=10) as client:
+		tasks = [fetch(client, u, sem) for u in urls]
+		return await asyncio.gather(*tasks, return_exceptions=True
+* asyncio.Semaphore 동시에 진행되는 작업 수 묶음
+* httpx.Limits 커넥션 수도 제한
+
+3가지 비교
+- 크롤링에서 스레드로 충분한 경우가 대부분
+	Thread Pool	Process Pool	asyncio + httpx
+적합	1/0 bound	CPU bound	1/0 bound (대량)
+코드 변경	거의 없음	거의 없음	전면 수정
+호출 형태	pool.map	pool.map	asyncio.gather
+오버헤드	작음	큼	가장 작음
+적정 규모	수백 ~ 수천	코어 수만큼	수천 ~ 수만
+추천	기본값	파싱 전용	대규모 전용
+
+실전 기본값
+- 코드에 넣어야 함
+EX)
+MAX_WORKERS = 3
+DELAY = 0.7 # 
+
+# 실효속도
+# 3 / 0.7 ≒ 초당4.3 요청
+# 시간당약15,000건
+
+# 대부분의 실습에는 이것으로 충분합니다
+with Pool(MAX_WORKERS) as pool:
+	results = pool.map(fetch_safe, urls)
+
+* 워커 수와 지연을 함께 봐야 실제 요청 속도가 나옴
+* 스켈레톤 코드의 기본값을 두는 것이 가장 확실
+
+429 서킷 브레이커
+* Retry-After 헤더가 있으면 그 값을 그대로 따름
+* 연속 실패가 쌓이면 멈춤
+* 차단이 반복되면 속도 줄이거나 수집 자체 검토
+
+(3) Scrapy
+- 재시도, 지연, 동시 연결 제한, 로깅, 중복 제거가 기본 탑재 
+- async를 쓰지 않아도 빠름
+
+- 라이브러리 구성 4가지 
+SPIDER	ITEM	PIPELINE	MIDDLEWARE
+무엇을 어디서 시작	무엇을 담을지
+	담은 뒤 무엇을 정제•검증•저장	요청 전후 처리
+
+URL과 파싱 규칙.	수집 결과의 스키마. 	clean() + save() 역할입니다.	헤더 주입•재시도•프록시.
+fetch() + parse() 와 동일합니다.	필드를 미리 선언해 오타를 막습니다.		안정성 관련 장치들입니다.
+
+Spider
+- yield로 결과를 내보내면 Scrapy가 알아서 모음
+- Response.follow가 상대 주소를 절대 주소로 바꿈
+
+Pipeline - 정제와 저장
+- clean() save() 
+* 파이프라인은 여러 개를 순서대로 이어 붙일 수 있음
+* DropItem을 던지면 조건에 맞지 않은 항목 걸러냄
+* 클렌징 모듈 사용 
+
+settings.py
+설정	하는 일	우리가 만들었던 것
+DOWNLOAD_DELAY	요청 간격	time.sleep (0.7)
+CONCURRENT_REQUESTS_PER_DOMAIN	도메인당 동시 연결	Semaphore (3)
+AUTOTHROTTLE_ENABLED	응답 속도에 맞춰 자동 조절	(직접 만들지 않음)
+RETRY_TIMES • RETRY_HTTP_CODES	재시도	urllib3.Retry
+ROBOTSTXT_OBEY	robots.txt 준수	RobotFileParser
+FEEDS	결과 저장	to_csv
+* 수집 대상이 많고 오래 운영할 프로젝트 => scrapy가 유리
+* 자바스크립트 렌더링이 필요하면 별도 플로그인이 있어야 함
+
+동시성 
+1. 진단
+- I/O 인가 CPU인가
+2. 도구 선택
+- Tread, Process, async
+3. pool.map
+- 함수와 인자 목록
+4. 안전장치
+- Semaphore / 지연 / 429
+5. 프레임워크
+- Scrape 설정으로 
+
+
+
+
+
