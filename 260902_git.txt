@@ -1,0 +1,117 @@
+Streamlit 시각화 
+
+1. Matplotlib
+
+- 기본적인 2D 시각화 라이브러리 
+- 선 그래프, 막대 그래프, 히스토그램 등을 그릴 수 있음
+
+Streamlit에서 출력
+st.pyplot(fig)
+
+2. Seaborn
+
+- Matplotlib 기반의 통계 시각화 라이브러리
+- DataFrame과 연동이 편리하고 다양한 테마와 스타일을 지원
+
+Streamlit에서 출력
+st.pyplot(fig)
+
+주요 함수
+* sns.pairplot()
+* sns.FacetGrid()
+* sns.color_palette()
+
+3. Plotly
+
+- 인터랙티브한 그래프를 만들 수 있는 라이브러리
+- 마우스를 올려 값을 확인하는 tooltip과 zoom 기능 지원
+
+Streamlit에서 출력
+st.plotly_chart(fig)
+
+주요 그래프
+- 산점도
+px.scatter()
+
+- 3D 산점도
+px.scatter_3d()
+
+- 선 그래프
+px.line()
+
+- 막대 그래프
+px.bar()
+
+- 원형 그래프
+px.pie()
+
+- 히스토그램
+px.histogram()
+
+- 박스 플롯
+px.box()
+
+- 히트맵
+px.density_heatmap()
+
+4. 3D 그래프
+- Plotly를 이용하여 3차원 데이터를 시각화
+
+fig = px.scatter_3d(
+    df,
+    x='x',
+    y='y',
+    z='z',
+    color='category'
+)
+st.plotly_chart(fig)
+
+5. Animation
+- 시간이나 단계에 따라 데이터가 변화하는 모습을 시각화
+
+animation_frame
+→ 어떤 값을 기준으로 화면을 변화시킬지 설정
+
+animation_group
+→ 애니메이션에서 같은 데이터 객체를 연결하여 추적
+
+fig = px.scatter(
+    df,
+    x='x',
+    y='y',
+    color='category',
+    animation_frame='frame',
+    animation_group='category'
+)
+
+6. FacetGrid
+- 데이터를 조건에 따라 여러 개의 작은 그래프로 나누어 비교할 때 사용
+
+g = sns.FacetGrid(
+    df,
+    col='time',
+    row='sex'
+)
+
+col
+→ 열 방향으로 그래프 분리
+
+row
+→ 행 방향으로 그래프 분리
+
+7. Streamlit 동적 시각화
+- Streamlit은 사용자 입력이 변경되면 코드를 다시 실행하여 그래프를 업데이트함
+
+주로 사용하는 위젯
+
+st.slider()
+→ 범위에서 값 선택
+
+st.selectbox()
+→ 여러 항목 중 하나 선택
+
+사용자 입력
+→ 변수 값 변경
+→ 코드 다시 실행
+→ 그래프 변경
+
