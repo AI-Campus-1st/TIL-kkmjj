@@ -1,0 +1,344 @@
+[머신러닝 모델 정리]
+
+1. Linear Regression (선형 회귀)
+
+- 용도: 회귀
+- 연속적인 숫자 값을 예측하는 모델
+- X와 y 사이의 관계를 선형으로 표현
+- 예: 집값, 보험료, 매출 예측
+- 예측값과 실제값의 차이(Cost)를 최소화하도록 학습
+
+핵심:
+숫자 예측 + 선형 관계
+
+
+2. Ridge Regression
+
+- Linear Regression에 규제(Regularization)를 적용한 모델
+- L2 규제 사용
+- 가중치가 지나치게 커지는 것을 억제
+- 과적합(Overfitting)을 방지하기 위해 사용
+- 가중치를 0에 가깝게 만들지만 일반적으로 완전히 0으로 만들지는 않음
+
+핵심:
+Linear Regression + L2 규제
+
+
+3. Lasso Regression
+
+- Linear Regression에 규제를 적용한 모델
+- L1 규제 사용
+- 일부 Feature의 가중치를 0으로 만들 수 있음
+- 중요하지 않은 Feature를 제거하는 효과가 있음
+
+핵심:
+Linear Regression + L1 규제
+일부 가중치 = 0 가능
+
+
+4. Elastic Net
+
+- Ridge와 Lasso를 결합한 모델
+- L1 규제와 L2 규제를 함께 사용
+
+핵심:
+Elastic Net = Ridge + Lasso
+
+
+5. Logistic Regression (로지스틱 회귀)
+
+- 용도: 분류
+- 이름은 Regression이지만 분류 모델
+- 예: 이탈/유지, 스팸/정상, 악성/양성
+- Sigmoid 함수를 사용
+- 결과를 0~1 사이의 값으로 변환하여 분류
+
+핵심:
+Sigmoid → 0~1 → 분류
+
+
+6. SVM (Support Vector Machine)
+
+- 용도: 분류
+- 데이터를 나누는 Decision Boundary를 찾는 모델
+- 단순히 분류하는 것이 아니라 Margin이 최대가 되는 경계선을 찾음
+- Margin을 결정하는 데이터를 Support Vector라고 함
+- Margin이 클수록 Decision Boundary가 안정적
+
+핵심:
+Margin 최대화 + Support Vector
+
+
+7. Naive Bayes
+
+- 용도: 분류
+- 베이즈 정리를 이용하는 확률 기반 분류 모델
+- 각 Feature가 서로 독립이라고 가정
+- 각 클래스에 속할 확률을 계산하여 분류
+
+핵심:
+베이즈 확률 + Feature 독립 가정
+
+
+8. KNN (K-Nearest Neighbors)
+
+- 용도: 분류 + 회귀
+- 자신과 가장 가까운 K개의 데이터를 이용하여 예측
+
+[분류]
+가까운 K개 이웃 중 가장 많은 클래스로 분류
+
+[회귀]
+가까운 K개 이웃의 y값 평균으로 예측
+
+- 별도의 학습 과정이 거의 없어 Lazy Learning이라고도 함
+- 데이터 사이의 거리가 중요
+- Feature의 단위 차이가 결과에 영향을 줄 수 있어 Normalization이 중요
+- K값에 따라 결과가 달라질 수 있음
+
+핵심:
+가장 가까운 K개의 이웃으로 예측
+
+
+9. Decision Tree (결정 트리)
+
+- 용도: 분류 + 회귀
+- 질문을 반복하면서 데이터를 분할하는 모델
+- Entropy(불순도)가 낮아지는 방향으로 데이터를 분할
+- Recursive Partitioning(반복적 분할)을 사용
+- 너무 깊게 분할하면 Overfitting이 발생하기 쉬움
+- 이를 방지하기 위해 Pruning(가지치기)을 사용
+
+[분류]
+Leaf에 있는 Target의 최빈값으로 예측
+
+[회귀]
+Leaf에 있는 Target의 평균값으로 예측
+
+핵심:
+질문 반복 → 데이터 분할
+Entropy 감소
+과적합 방지를 위해 Pruning
+
+
+10. Ensemble (앙상블)
+
+- 여러 개의 약한 학습기를 결합하여 강한 학습기를 만드는 방법
+
+크게 두 종류
+
+1) Bagging
+- 여러 모델을 독립적으로 학습
+- 학습 결과를 마지막에 합침
+
+2) Boosting
+- 모델을 순차적으로 학습
+- 이전 모델의 실수를 다음 모델이 보완
+
+핵심:
+Bagging = 독립적으로 학습 후 결합
+Boosting = 순차적으로 이전 모델의 실수 보완
+
+
+11. Random Forest
+
+- Bagging 방식의 대표적인 모델
+- 여러 개의 Decision Tree를 사용
+- Bootstrap을 이용하여 여러 개의 샘플 데이터를 생성
+- 각각의 데이터로 Decision Tree를 학습
+- 여러 Tree의 예측 결과를 Aggregation
+
+[분류]
+여러 Tree의 결과를 종합하여 결정
+
+[회귀]
+여러 Tree의 예측값 평균 사용
+
+핵심:
+Bootstrap
++ 여러 Decision Tree
++ Aggregation
+
+
+12. AdaBoost (Adaptive Boosting)
+
+- Boosting 방식의 대표적인 모델
+- Decision Tree 기반
+- 이전 모델에서 틀린 데이터에 더 높은 가중치를 부여
+- 다음 모델이 해당 데이터를 더 중요하게 학습
+- 이 과정을 반복하여 성능을 개선
+
+핵심:
+틀린 데이터 → 가중치 증가 → 다음 모델에서 다시 학습
+
+
+13. Gradient Boosting
+
+- Boosting 방식의 모델
+- 이전 모델에서 발생한 잔여 오차를 다음 모델이 학습
+- 모델을 순차적으로 추가하면서 오차를 줄여나감
+- 정확도가 높지만 학습 시간이 오래 걸릴 수 있음
+
+핵심:
+이전 모델의 잔여 오차를 다음 모델이 학습
+
+
+14. XGBoost
+
+- Gradient Boosting을 개선한 모델
+- Gradient Boosting의 느린 학습 속도를 개선
+- Tree 구성 과정에서 병렬 처리를 활용
+
+흐름:
+Decision Tree
+→ Boosting
+→ Gradient Boosting
+→ XGBoost
+
+핵심:
+Gradient Boosting의 속도 개선
+
+
+15. K-Means
+
+- 용도: 군집화(Clustering)
+- 비지도학습
+- 정답 y가 없는 데이터를 비슷한 데이터끼리 묶음
+- 사용자가 군집의 개수 K를 지정
+
+과정:
+
+1. K개의 중심점 설정
+2. 각 데이터를 가장 가까운 중심점에 배정
+3. 각 그룹의 중심점을 다시 계산
+4. 다시 데이터를 배정
+5. 중심점이 안정될 때까지 반복
+
+E (Expectation)
+= 중심점을 기준으로 데이터의 그룹 결정
+
+M (Maximization)
+= 그룹을 기준으로 중심점 재설정
+
+K-Means++
+- 초기 중심점을 좀 더 효과적으로 선택하는 방법
+
+핵심:
+K개 중심점 설정
+→ 가까운 데이터끼리 묶기
+→ 중심점 갱신
+→ 반복
+
+
+16. Hierarchical Clustering (계층적 군집화)
+
+- 용도: 군집화
+- 비지도학습
+- 가까운 데이터부터 하나씩 합쳐가며 군집 생성
+- Agglomerative Algorithm(병합 알고리즘) 사용
+
+과정:
+
+1. 각각의 데이터를 하나의 클러스터로 시작
+2. 데이터 간 거리 계산
+3. 가장 가까운 클러스터끼리 병합
+4. 다시 거리 계산
+5. 계속 병합
+
+- 데이터 간 유사도(거리)를 계산해야 함
+- 계산 복잡도가 높음
+
+핵심:
+가까운 클러스터부터 계속 병합
+
+
+-----------------------------------
+
+[모델 전체 구조]
+
+머신러닝
+
+1. 지도학습
+
+- 회귀
+  Linear Regression
+  Ridge
+  Lasso
+  Elastic Net
+  KNN Regression
+  Decision Tree Regression
+
+- 분류
+  Logistic Regression
+  SVM
+  Naive Bayes
+  KNN
+  Decision Tree
+
+
+2. Ensemble
+
+- Bagging
+  Random Forest
+
+- Boosting
+  AdaBoost
+  Gradient Boosting
+  XGBoost
+
+
+3. 비지도학습
+
+- Clustering
+  K-Means
+  Hierarchical Clustering
+
+
+-----------------------------------
+
+[모델별 핵심 한 줄]
+
+Linear Regression
+= 선형 관계를 이용한 숫자 예측
+
+Ridge
+= Linear Regression + L2 규제
+
+Lasso
+= Linear Regression + L1 규제
+
+Elastic Net
+= Ridge + Lasso
+
+Logistic Regression
+= Sigmoid를 이용한 분류
+
+SVM
+= Margin을 최대화하는 경계선 탐색
+
+Naive Bayes
+= 베이즈 확률을 이용한 분류
+
+KNN
+= 가까운 K개의 이웃으로 예측
+
+Decision Tree
+= 질문을 반복하면서 데이터 분할
+
+Random Forest
+= 여러 Decision Tree를 Bagging
+
+AdaBoost
+= 틀린 데이터의 가중치를 높여 다시 학습
+
+Gradient Boosting
+= 이전 모델의 잔여 오차를 다음 모델이 학습
+
+XGBoost
+= Gradient Boosting을 빠르게 개선한 모델
+
+K-Means
+= K개의 중심점을 기준으로 군집 생성
+
+Hierarchical Clustering
+= 가까운 데이터부터 계층적으로 병합
